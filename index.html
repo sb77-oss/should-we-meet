@@ -1,0 +1,1011 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Should We Meet?</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --pink: #FF2D6B;
+    --pink-light: #FFD6E4;
+    --pink-pale: #FFF0F5;
+    --black: #1A1A1A;
+    --gray: #888;
+    --white: #FFFFFF;
+    --green: #00C47A;
+    --red: #FF2D2D;
+    --wa: #25D366;
+  }
+
+  body {
+    font-family: 'Inter', sans-serif;
+    background: var(--pink-pale);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  .card {
+    background: var(--white);
+    border-radius: 24px;
+    max-width: 480px;
+    width: 100%;
+    padding: 40px 36px;
+    box-shadow: 0 8px 48px rgba(255,45,107,0.12);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, var(--pink), #FF8FB1);
+  }
+
+  /* SCORE BAR */
+  .score-bar-wrap { margin-bottom: 28px; }
+
+  .score-bar-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--gray);
+  }
+
+  .score-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 18px;
+    font-weight: 900;
+    color: var(--pink);
+    letter-spacing: 0;
+    text-transform: none;
+  }
+
+  .score-bar-track {
+    height: 8px;
+    background: #F0F0F0;
+    border-radius: 99px;
+    position: relative;
+  }
+
+  .score-bar-fill {
+    height: 100%;
+    border-radius: 99px;
+    background: linear-gradient(90deg, var(--red), var(--pink), var(--green));
+    background-size: 200% 100%;
+    transition: width 0.5s cubic-bezier(.34,1.56,.64,1), background-position 0.5s ease;
+    width: 50%;
+    background-position: 100% 0;
+  }
+
+  /* SCREENS */
+  .screen { display: none; }
+  .screen.active { display: block; }
+
+  /* INTRO */
+  .intro-tag {
+    display: inline-block;
+    background: var(--pink-light);
+    color: var(--pink);
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 5px 12px;
+    border-radius: 99px;
+    margin-bottom: 20px;
+  }
+
+  .intro-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 36px;
+    font-weight: 900;
+    color: var(--black);
+    line-height: 1.1;
+    margin-bottom: 16px;
+  }
+  .intro-title span { color: var(--pink); }
+
+  .intro-sub {
+    color: var(--gray);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 28px;
+  }
+
+  .field-label {
+    display: block;
+    font-size: 12px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--black);
+    margin-bottom: 8px;
+  }
+
+  .text-input {
+    width: 100%;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-family: 'Inter', sans-serif;
+    border: 2px solid #EBEBEB;
+    border-radius: 12px;
+    outline: none;
+    transition: border-color 0.2s;
+    margin-bottom: 16px;
+    color: var(--black);
+  }
+  .text-input:focus { border-color: var(--pink); }
+  .text-input.error { border-color: var(--red); }
+
+  .input-error {
+    font-size: 13px;
+    color: var(--red);
+    margin-top: -10px;
+    margin-bottom: 14px;
+    display: none;
+  }
+  .input-error.show { display: block; }
+
+  /* PRIMARY BUTTON */
+  .btn-primary {
+    width: 100%;
+    padding: 16px;
+    background: var(--pink);
+    color: var(--white);
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: transform 0.15s, box-shadow 0.15s;
+    letter-spacing: 0.02em;
+  }
+  .btn-primary:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(255,45,107,0.3); }
+  .btn-primary:active { transform: translateY(0); }
+  .btn-primary:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; }
+
+  /* QUESTION */
+  .q-progress {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--gray);
+    margin-bottom: 6px;
+  }
+
+  .q-text {
+    font-family: 'Playfair Display', serif;
+    font-size: 26px;
+    font-weight: 700;
+    color: var(--black);
+    line-height: 1.25;
+    margin-bottom: 12px;
+  }
+
+  .q-sub {
+    font-size: 13px;
+    color: var(--gray);
+    margin-bottom: 20px;
+  }
+
+  .btn-group {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* STANDARD YES/NO BUTTONS */
+  .btn-answer {
+    width: 100%;
+    padding: 14px 18px;
+    background: var(--white);
+    color: var(--black);
+    font-size: 15px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    border: 2px solid #EBEBEB;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s, transform 0.15s;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .btn-answer:hover { border-color: var(--pink); background: var(--pink-pale); transform: translateX(3px); }
+
+  .btn-answer .pts {
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+    margin-left: 12px;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .revealed .btn-answer .pts { opacity: 1; }
+  .btn-answer.yes-btn .pts { color: var(--green); }
+  .btn-answer.no-btn .pts { color: var(--red); }
+  .btn-answer.end-btn .pts { color: var(--gray); }
+  .btn-answer.excuse-btn .pts { color: var(--gray); }
+
+  /* MULTI-SELECT BUTTONS (Q3) */
+  .btn-multi {
+    width: 100%;
+    padding: 13px 18px;
+    background: var(--white);
+    color: var(--black);
+    font-size: 14px;
+    font-weight: 500;
+    font-family: 'Inter', sans-serif;
+    border: 2px solid #EBEBEB;
+    border-radius: 12px;
+    cursor: pointer;
+    text-align: left;
+    transition: border-color 0.15s, background 0.15s;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .btn-multi:hover:not(.locked) { border-color: var(--pink-light); background: var(--pink-pale); }
+  .btn-multi.selected {
+    border-color: var(--pink);
+    background: var(--pink-pale);
+    color: var(--pink);
+    font-weight: 600;
+  }
+  .btn-multi.locked:not(.selected) { opacity: 0.45; cursor: default; }
+
+  .multi-check {
+    width: 18px;
+    height: 18px;
+    border-radius: 50%;
+    border: 2px solid #DCDCDC;
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: border-color 0.15s, background 0.15s;
+    font-size: 10px;
+    color: white;
+  }
+  .btn-multi.selected .multi-check {
+    background: var(--pink);
+    border-color: var(--pink);
+  }
+
+  .multi-counter {
+    font-size: 12px;
+    color: var(--gray);
+    margin-bottom: 14px;
+    font-weight: 500;
+  }
+  .multi-counter span { color: var(--pink); font-weight: 700; }
+
+  .btn-multi-confirm {
+    width: 100%;
+    margin-top: 14px;
+    padding: 14px;
+    background: var(--pink);
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .btn-multi-confirm:hover { opacity: 0.88; transform: translateY(-1px); }
+  .btn-multi-confirm:disabled { opacity: 0.35; cursor: not-allowed; transform: none; }
+
+  /* EXCUSE TEXT INPUT */
+  .excuse-wrap {
+    margin-top: 6px;
+    display: none;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .excuse-wrap.open { display: flex; }
+  .excuse-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    border: 2px solid var(--pink-light);
+    border-radius: 10px;
+    outline: none;
+    color: var(--black);
+    transition: border-color 0.2s;
+    resize: none;
+  }
+  .excuse-input:focus { border-color: var(--pink); }
+  .excuse-submit {
+    padding: 11px 16px;
+    background: var(--pink);
+    color: white;
+    font-size: 13px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .excuse-submit:hover { opacity: 0.85; }
+  .excuse-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  /* VERDICT FLASH */
+  .verdict-flash {
+    position: fixed;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    z-index: 100;
+    opacity: 0;
+    transition: opacity 0.2s;
+  }
+  .verdict-flash.show { opacity: 1; }
+  .verdict-badge {
+    font-family: 'Playfair Display', serif;
+    font-size: 52px;
+    font-weight: 900;
+    padding: 20px 36px;
+    border-radius: 20px;
+    transform: rotate(-3deg);
+    box-shadow: 0 12px 48px rgba(0,0,0,0.2);
+  }
+  .verdict-badge.plus { background: var(--green); color: white; }
+  .verdict-badge.minus { background: var(--red); color: white; }
+
+  /* RESULT */
+  .result-icon { font-size: 56px; margin-bottom: 16px; display: block; }
+
+  .result-title {
+    font-family: 'Playfair Display', serif;
+    font-size: 32px;
+    font-weight: 900;
+    color: var(--black);
+    margin-bottom: 12px;
+    line-height: 1.15;
+  }
+  .result-title span { color: var(--pink); }
+
+  .result-sub {
+    color: var(--gray);
+    font-size: 15px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .score-final-wrap {
+    background: var(--pink-pale);
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    gap: 14px;
+  }
+  .score-final-num {
+    font-family: 'Playfair Display', serif;
+    font-size: 40px;
+    font-weight: 900;
+    color: var(--pink);
+    line-height: 1;
+    min-width: 52px;
+  }
+  .score-final-label { font-size: 13px; color: var(--gray); line-height: 1.5; }
+
+  /* BONUS: MUSIC */
+  .bonus-wrap {
+    background: #F8F8F8;
+    border-radius: 14px;
+    padding: 18px 20px;
+    margin-bottom: 12px;
+  }
+  .bonus-label {
+    font-size: 11px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    color: var(--pink);
+    margin-bottom: 6px;
+  }
+  .bonus-q {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--black);
+    margin-bottom: 12px;
+  }
+  .music-input {
+    width: 100%;
+    padding: 12px 14px;
+    font-size: 14px;
+    font-family: 'Inter', sans-serif;
+    border: 2px solid #EBEBEB;
+    border-radius: 10px;
+    outline: none;
+    transition: border-color 0.2s;
+    color: var(--black);
+    margin-bottom: 10px;
+  }
+  .music-input:focus { border-color: var(--pink); }
+  .music-open-btns {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 10px;
+  }
+  .btn-music {
+    flex: 1;
+    padding: 9px 12px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    text-decoration: none;
+    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: opacity 0.15s;
+  }
+  .btn-spotify { background: #1DB954; color: white; }
+  .btn-apple { background: #FC3C44; color: white; }
+  .btn-music:hover { opacity: 0.85; }
+
+  .btn-bonus-submit {
+    width: 100%;
+    padding: 12px;
+    background: var(--pink);
+    color: white;
+    font-size: 14px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+  .btn-bonus-submit:hover { opacity: 0.85; }
+  .btn-bonus-submit:disabled { opacity: 0.4; cursor: not-allowed; }
+
+  .bonus-submitted {
+    display: none;
+    font-size: 14px;
+    color: var(--green);
+    font-weight: 600;
+    padding: 6px 0 2px;
+  }
+  .bonus-submitted.show { display: block; }
+
+  /* WHATSAPP BUTTON */
+  .btn-whatsapp {
+    width: 100%;
+    padding: 16px;
+    background: var(--wa);
+    color: white;
+    font-size: 15px;
+    font-weight: 700;
+    font-family: 'Inter', sans-serif;
+    border: none;
+    border-radius: 12px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 12px;
+    text-decoration: none;
+    transition: opacity 0.15s, transform 0.15s;
+  }
+  .btn-whatsapp:hover { opacity: 0.88; transform: translateY(-1px); }
+
+  /* ANSWERS LOG */
+  .answers-log {
+    background: #F8F8F8;
+    border-radius: 12px;
+    padding: 16px;
+    margin-top: 12px;
+    font-size: 13px;
+    color: var(--black);
+    line-height: 1.8;
+  }
+  .answers-log .log-name {
+    font-weight: 700;
+    color: var(--pink);
+    font-size: 14px;
+    margin-bottom: 8px;
+  }
+  .log-row { display: flex; justify-content: space-between; gap: 8px; }
+  .log-pts { font-weight: 700; flex-shrink: 0; }
+  .log-pts.pos { color: var(--green); }
+  .log-pts.neg { color: var(--red); }
+  .log-pts.na { color: var(--gray); }
+
+  .already-wrap, .dq-wrap { text-align: center; padding: 10px 0; }
+</style>
+</head>
+<body>
+
+<div class="verdict-flash" id="verdictFlash">
+  <div class="verdict-badge" id="verdictBadge"></div>
+</div>
+
+<div class="card">
+
+  <div class="score-bar-wrap" id="scoreBarWrap" style="display:none;">
+    <div class="score-bar-label">
+      <span>Score</span>
+      <span class="score-num" id="scoreDisplay">0</span>
+    </div>
+    <div class="score-bar-track">
+      <div class="score-bar-fill" id="scoreBarFill"></div>
+    </div>
+  </div>
+
+  <!-- INTRO -->
+  <div class="screen active" id="screenIntro">
+    <span class="intro-tag">A very scientific quiz</span>
+    <h1 class="intro-title">Should we<br><span>meet?</span></h1>
+    <p class="intro-sub">Hi :) Are we really a match? Let's find out.</p>
+    <label class="field-label" for="nameInput">Your name</label>
+    <input class="text-input" id="nameInput" type="text" placeholder="First name is fine" autocomplete="off" />
+    <label class="field-label" for="phoneInput">Your number</label>
+    <input class="text-input" id="phoneInput" type="tel" placeholder="+972..." autocomplete="off" />
+    <div class="input-error" id="phoneError">You've already taken this quiz. Bold of you to try again.</div>
+    <button class="btn-primary" onclick="startQuiz()">Let's go →</button>
+  </div>
+
+  <!-- ALREADY TAKEN -->
+  <div class="screen" id="screenAlready">
+    <div class="already-wrap">
+      <span class="result-icon">👀</span>
+      <h2 class="result-title">You already did this.</h2>
+      <p class="result-sub">One attempt per person. Those are the rules.</p>
+    </div>
+  </div>
+
+  <!-- Q1 -->
+  <div class="screen" id="screenQ1">
+    <div class="q-progress">Question 1 of 7</div>
+    <div class="q-text">Do you give good קיצי?</div>
+    <div class="btn-group">
+      <button class="btn-answer yes-btn" onclick="answer(1, 1)">Yes <span class="pts">+1</span></button>
+      <button class="btn-answer no-btn" onclick="answer(1, -1)">No <span class="pts">-1</span></button>
+    </div>
+  </div>
+
+  <!-- Q2 -->
+  <div class="screen" id="screenQ2">
+    <div class="q-progress">Question 2 of 7</div>
+    <div class="q-text">Have you gone out to dance with friends in the last few months?</div>
+    <div class="btn-group">
+      <button class="btn-answer yes-btn" onclick="answer(2, 1)">Yes <span class="pts">+1</span></button>
+      <button class="btn-answer no-btn" onclick="answer(2, -1)">No <span class="pts">-1</span></button>
+    </div>
+  </div>
+
+  <!-- Q3: MULTI-SELECT -->
+  <div class="screen" id="screenQ3">
+    <div class="q-progress">Question 3 of 7</div>
+    <div class="q-text">Who are you in the friend group?</div>
+    <div class="multi-counter">Pick up to 3 — <span id="multiSelected">0</span> selected</div>
+    <div class="btn-group" id="multiGroup">
+      <button class="btn-multi" data-role="The organizer" onclick="toggleMulti(this)">
+        <span class="multi-check">✓</span> The organizer
+      </button>
+      <button class="btn-multi" data-role="The joker" onclick="toggleMulti(this)">
+        <span class="multi-check">✓</span> The joker
+      </button>
+      <button class="btn-multi" data-role="The peacekeeper" onclick="toggleMulti(this)">
+        <span class="multi-check">✓</span> The peacekeeper
+      </button>
+      <button class="btn-multi" data-role="The shit starter" onclick="toggleMulti(this)">
+        <span class="multi-check">✓</span> The shit starter
+      </button>
+      <button class="btn-multi" data-role="The hype person" onclick="toggleMulti(this)">
+        <span class="multi-check">✓</span> The hype person
+      </button>
+      <button class="btn-multi" data-role="The therapist" onclick="toggleMulti(this)">
+        <span class="multi-check">✓</span> The therapist
+      </button>
+      <button class="btn-multi" data-role="The chef" onclick="toggleMulti(this)">
+        <span class="multi-check">✓</span> The chef
+      </button>
+    </div>
+    <button class="btn-multi-confirm" id="multiConfirmBtn" onclick="confirmMulti()" disabled>Next →</button>
+  </div>
+
+  <!-- Q4 -->
+  <div class="screen" id="screenQ4">
+    <div class="q-progress">Question 4 of 7</div>
+    <div class="q-text">Will you be voting for Bibi, Smotrich, Ben Gvir, Eliyahu, Deri, Maoz, Gafni, or Goldknopf?</div>
+    <div class="btn-group">
+      <button class="btn-answer end-btn" onclick="disqualify()">Yes <span class="pts">💀</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(4, 1)">No <span class="pts">+1</span></button>
+    </div>
+  </div>
+
+  <!-- Q5 -->
+  <div class="screen" id="screenQ5">
+    <div class="q-progress">Question 5 of 7</div>
+    <div class="q-text">I have attended at least one Kaplan or Hostage protest in the past two years.</div>
+    <div class="btn-group" id="q5group">
+      <button class="btn-answer yes-btn" onclick="answer(5, 1, 'Yes')">Yes <span class="pts">+1</span></button>
+      <button class="btn-answer no-btn" onclick="answer(5, -1, 'No')">No <span class="pts">-1</span></button>
+      <button class="btn-answer excuse-btn" id="explainBtn" onclick="openExcuse()">I can explain <span class="pts">0</span></button>
+    </div>
+    <div class="excuse-wrap" id="excuseWrap">
+      <textarea class="excuse-input" id="excuseInput" rows="2" placeholder="Go ahead..."></textarea>
+      <button class="excuse-submit" id="excuseSubmit" onclick="submitExcuse()" disabled>Submit</button>
+    </div>
+  </div>
+
+  <!-- Q6 -->
+  <div class="screen" id="screenQ6">
+    <div class="q-progress">Question 6 of 7</div>
+    <div class="q-text">What are you reading?</div>
+    <div class="btn-group" id="q6group">
+      <textarea class="excuse-input" id="bookInput" rows="2" placeholder="Title and author..."></textarea>
+      <button class="excuse-submit" id="bookSubmitBtn" onclick="submitBook()" disabled>Next →</button>
+      <button class="btn-answer no-btn" style="margin-top:4px;" onclick="answer(6, -1, 'I don\'t read')">I don't read <span class="pts">-1</span></button>
+    </div>
+  </div>
+
+  <div class="screen" id="screenQ7">
+    <div class="q-progress">Question 7 of 7</div>
+    <div class="q-text">Will you play trivia with me?</div>
+    <div class="btn-group">
+      <button class="btn-answer yes-btn" onclick="answer(7, 1)">Yes <span class="pts">+1</span></button>
+      <button class="btn-answer no-btn" onclick="answer(7, -1)">No <span class="pts">-1</span></button>
+    </div>
+  </div>
+
+  <!-- DISQUALIFIED -->
+  <div class="screen" id="screenDQ">
+    <div class="dq-wrap">
+      <span class="result-icon">🚪</span>
+      <h2 class="result-title">Thanks for<br>your time.</h2>
+      <p class="result-sub" id="dqText">Genuinely wishing you well. Just... somewhere else.</p>
+    </div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="screenResult">
+    <span class="result-icon" id="resultIcon"></span>
+    <h2 class="result-title" id="resultTitle"></h2>
+    <p class="result-sub" id="resultSub"></p>
+
+    <div class="score-final-wrap">
+      <div class="score-final-num" id="finalScoreNum"></div>
+      <div class="score-final-label" id="finalScoreLabel"></div>
+    </div>
+
+    <!-- BONUS: MUSIC -->
+    <div class="bonus-wrap">
+      <div class="bonus-label">✦ Bonus</div>
+      <div class="bonus-q">What have you got on repeat lately?</div>
+      <input class="music-input" id="musicLink" type="text" placeholder="Paste a Spotify or Apple Music link..." autocomplete="off" />
+      <div class="music-open-btns">
+        <a class="btn-music btn-spotify" href="https://open.spotify.com" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/></svg>
+          Open Spotify
+        </a>
+        <a class="btn-music btn-apple" href="https://music.apple.com" target="_blank">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="white"><path d="M23.994 6.124a9.23 9.23 0 00-.24-2.19c-.317-1.31-1.062-2.31-2.18-3.043a6.303 6.303 0 00-1.834-.76c-.69-.165-1.403-.25-2.11-.24-.144.002-.288.006-.432.01H6.747c-.144-.004-.288-.008-.432-.01-.707-.01-1.42.075-2.11.24a6.303 6.303 0 00-1.834.76C1.248 1.624.503 2.624.186 3.934a9.23 9.23 0 00-.24 2.19C-.02 6.27-.02 6.317 0 6.364v11.272c-.02.047-.02.093.054.14.011.686.08 1.37.208 2.045.19 1.01.636 1.91 1.337 2.65.7.74 1.56 1.22 2.53 1.39.61.11 1.23.17 1.85.18.62.01 1.24.01 1.86.01h8.16c.62 0 1.24 0 1.86-.01.62-.01 1.24-.07 1.85-.18.97-.17 1.83-.65 2.53-1.39.7-.74 1.147-1.64 1.337-2.65.128-.676.197-1.36.208-2.046C24 17.73 24 17.683 24 17.636V6.364c.02-.047.02-.093 0-.14zM15.5 6.5v4a1 1 0 01-1 1h-1v2.25a2.25 2.25 0 11-1.5 0V11.5h-1a1 1 0 01-1-1v-4a1 1 0 011-1h4a1 1 0 011 1z"/></svg>
+          Apple Music
+        </a>
+      </div>
+      <button class="btn-bonus-submit" id="musicSubmitBtn" onclick="submitMusic()" disabled>Send it</button>
+      <div class="bonus-submitted" id="bonusMusicDone">✓ Got it — noted for Sara.</div>
+    </div>
+
+    <!-- WHATSAPP SEND -->
+    <a class="btn-whatsapp" id="waBtn" href="#" target="_blank">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+      Send results to Sara
+    </a>
+
+    <div class="answers-log" id="answersLog"></div>
+  </div>
+
+</div>
+
+<script>
+  let score = 0;
+  let userName = '';
+  let userPhone = '';
+  let answerLog = [];
+  let friendRoles = [];
+  let bonusMusic = null;
+
+  const MAX_SCORE = 7; // scoring Qs: 1,2,4,5,6,7 (Q3 info-only)
+
+  function normalizePhone(p) { return p.replace(/\D/g, ''); }
+
+  function getUsedPhones() {
+    try { return JSON.parse(localStorage.getItem('sytkyt_phones') || '[]'); }
+    catch { return []; }
+  }
+
+  function savePhone(phone) {
+    const phones = getUsedPhones();
+    phones.push(normalizePhone(phone));
+    try { localStorage.setItem('sytkyt_phones', JSON.stringify(phones)); } catch {}
+  }
+
+  function phoneAlreadyUsed(phone) {
+    const norm = normalizePhone(phone);
+    return norm.length > 5 && getUsedPhones().includes(norm);
+  }
+
+  function updateScoreBar() {
+    const pct = ((score + MAX_SCORE) / (MAX_SCORE * 2)) * 100;
+    document.getElementById('scoreBarFill').style.width = pct + '%';
+    document.getElementById('scoreBarFill').style.backgroundPosition = (100 - pct) + '% 0';
+    document.getElementById('scoreDisplay').textContent = (score >= 0 ? '+' : '') + score;
+  }
+
+  function flashVerdict(pts) {
+    const flash = document.getElementById('verdictFlash');
+    const badge = document.getElementById('verdictBadge');
+    badge.textContent = pts > 0 ? '+1' : '-1';
+    badge.className = 'verdict-badge ' + (pts > 0 ? 'plus' : 'minus');
+    flash.classList.add('show');
+    setTimeout(() => flash.classList.remove('show'), 700);
+  }
+
+  function showScreen(id) {
+    document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+  }
+
+  function startQuiz() {
+    const name = document.getElementById('nameInput').value.trim();
+    const phone = document.getElementById('phoneInput').value.trim();
+    const phoneErr = document.getElementById('phoneError');
+
+    document.getElementById('nameInput').classList.remove('error');
+    document.getElementById('phoneInput').classList.remove('error');
+    phoneErr.classList.remove('show');
+
+    if (!name) { document.getElementById('nameInput').classList.add('error'); document.getElementById('nameInput').focus(); return; }
+    if (!phone || normalizePhone(phone).length < 6) { document.getElementById('phoneInput').classList.add('error'); document.getElementById('phoneInput').focus(); return; }
+
+    if (phoneAlreadyUsed(phone)) {
+      document.getElementById('phoneInput').classList.add('error');
+      phoneErr.classList.add('show');
+      return;
+    }
+
+    userName = name;
+    userPhone = phone;
+    score = 0;
+    answerLog = [];
+    friendRoles = [];
+    bonusMusic = null;
+    updateScoreBar();
+    document.getElementById('scoreBarWrap').style.display = 'block';
+    showScreen('screenQ1');
+  }
+
+  function revealCurrentPts() {
+    const active = document.querySelector('.screen.active');
+    if (active) {
+      const g = active.querySelector('.btn-group');
+      if (g) g.classList.add('revealed');
+    }
+  }
+
+  function answer(qNum, pts, customLabel) {
+    revealCurrentPts();
+    score += pts;
+    flashVerdict(pts);
+    updateScoreBar();
+
+    const label = customLabel || (pts > 0 ? 'Yes' : 'No');
+    answerLog.push({ q: qNum, label, pts });
+
+    setTimeout(() => {
+      if (qNum === 1) showScreen('screenQ2');
+      else if (qNum === 2) showScreen('screenQ3');
+      else if (qNum === 4) showScreen('screenQ5');
+      else if (qNum === 5) showScreen('screenQ6');
+      else if (qNum === 6) showScreen('screenQ7');
+      else if (qNum === 7) showResult();
+    }, 500);
+  }
+
+  // MULTI-SELECT (Q3)
+  function toggleMulti(btn) {
+    if (btn.classList.contains('locked') && !btn.classList.contains('selected')) return;
+    const isSelected = btn.classList.contains('selected');
+    if (isSelected) {
+      btn.classList.remove('selected');
+    } else {
+      if (friendRoles.length >= 3) return;
+      btn.classList.add('selected');
+    }
+    // rebuild state
+    friendRoles = Array.from(document.querySelectorAll('.btn-multi.selected')).map(b => b.dataset.role);
+    // lock unselected if 3 picked
+    document.querySelectorAll('.btn-multi').forEach(b => {
+      if (!b.classList.contains('selected')) {
+        if (friendRoles.length >= 3) b.classList.add('locked');
+        else b.classList.remove('locked');
+      }
+    });
+    document.getElementById('multiSelected').textContent = friendRoles.length;
+    document.getElementById('multiConfirmBtn').disabled = friendRoles.length === 0;
+  }
+
+  function confirmMulti() {
+    if (friendRoles.length === 0) return;
+    answerLog.push({ q: 3, label: friendRoles.join(', '), pts: null });
+    // reset multi state for potential reuse
+    document.querySelectorAll('.btn-multi').forEach(b => { b.classList.remove('selected', 'locked'); });
+    document.getElementById('multiSelected').textContent = '0';
+    document.getElementById('multiConfirmBtn').disabled = true;
+    showScreen('screenQ4');
+  }
+
+  // Q5 excuse
+  function openExcuse() {
+    document.getElementById('explainBtn').style.display = 'none';
+    document.getElementById('excuseWrap').classList.add('open');
+    document.getElementById('excuseInput').focus();
+  }
+
+  function submitExcuse() {
+    const excuse = document.getElementById('excuseInput').value.trim();
+    if (!excuse) return;
+    document.getElementById('q5group').classList.add('revealed');
+    const label = 'Explanation: ' + (excuse.length > 40 ? excuse.substring(0, 37) + '…' : excuse);
+    answerLog.push({ q: 5, label, pts: 0 });
+    setTimeout(() => showScreen('screenQ6'), 400);
+  }
+
+  function submitBook() {
+    const book = document.getElementById('bookInput').value.trim();
+    if (!book) return;
+    document.getElementById('q6group').classList.add('revealed');
+    const label = book.length > 40 ? book.substring(0, 37) + '…' : book;
+    score += 1;
+    flashVerdict(1);
+    updateScoreBar();
+    answerLog.push({ q: 6, label, pts: 1 });
+    setTimeout(() => showScreen('screenQ7'), 500);
+  }
+
+  function submitMusic() {
+    const link = document.getElementById('musicLink').value.trim();
+    if (!link) return;
+    bonusMusic = link;
+    document.getElementById('musicSubmitBtn').disabled = true;
+    document.getElementById('musicLink').disabled = true;
+    document.getElementById('bonusMusicDone').classList.add('show');
+    updateWaLink();
+    buildAnswerLog();
+  }
+
+  function disqualify() {
+    savePhone(userPhone);
+    document.getElementById('scoreBarWrap').style.display = 'none';
+    const dqTexts = [
+      `All the best to you, ${userName}. Really.`,
+      `Take care of yourself, ${userName}. Just not with me.`,
+      `${userName} — thank you for your honesty. And goodbye.`
+    ];
+    document.getElementById('dqText').textContent = dqTexts[Math.floor(Math.random() * dqTexts.length)];
+    showScreen('screenDQ');
+  }
+
+  function buildWaMessage() {
+    const qLabels = { 1: 'קיצי', 2: 'Dancing', 3: 'Friend group', 4: 'Voting', 5: 'Protests', 6: 'Reading', 7: 'Trivia' };
+    let msg = `*Should We Meet? — ${userName}'s results*\n`;
+    msg += `Score: ${score >= 0 ? '+' : ''}${score} / +${MAX_SCORE}\n\n`;
+    answerLog.forEach(a => {
+      const pts = a.pts === null ? '' : a.pts > 0 ? ` (+${a.pts})` : a.pts === 0 ? ' (0)' : ` (${a.pts})`;
+      msg += `Q${a.q} ${qLabels[a.q]}: ${a.label}${pts}\n`;
+    });
+    if (bonusMusic) msg += `\nMusic: ${bonusMusic}`;
+    msg += `\nPhone: ${userPhone}`;
+    return encodeURIComponent(msg);
+  }
+
+  function updateWaLink() {
+    document.getElementById('waBtn').href = `https://wa.me/972548781631?text=${buildWaMessage()}`;
+  }
+
+  function buildAnswerLog() {
+    const qLabels = ['', 'קיצי', 'Gone out to dance?', 'Friend group roles', 'The vote question', 'Kaplan / protests', 'Currently reading', 'Will play trivia?'];
+    let html = `<div class="log-name">${userName}'s answers</div>`;
+    answerLog.forEach(a => {
+      const cls = a.pts > 0 ? 'pos' : a.pts < 0 ? 'neg' : 'na';
+      const ptsStr = a.pts === null ? '—' : a.pts > 0 ? '+' + a.pts : a.pts === 0 ? '0' : '' + a.pts;
+      html += `<div class="log-row"><span>Q${a.q}: ${qLabels[a.q]} — ${a.label}</span><span class="log-pts ${cls}">${ptsStr}</span></div>`;
+    });
+    if (bonusMusic) {
+      const short = bonusMusic.length > 38 ? bonusMusic.substring(0, 35) + '…' : bonusMusic;
+      html += `<div class="log-row"><span>Bonus: Music — ${short}</span><span class="log-pts na">♪</span></div>`;
+    }
+    document.getElementById('answersLog').innerHTML = html;
+  }
+
+  function showResult() {
+    savePhone(userPhone);
+    document.getElementById('scoreBarWrap').style.display = 'none';
+
+    let icon, title, sub;
+    if (score >= 5) {
+      icon = '💘';
+      title = `<span>${userName}</span>, I think yes.`;
+      sub = 'High score. Suspiciously high. I\'m into it.';
+    } else if (score >= 2) {
+      icon = '🤔';
+      title = `Please stand by, <span>${userName}</span>.`;
+      sub = '😘';
+    } else if (score >= 0) {
+      icon = '😬';
+      title = `Hmm. <span>${userName}</span>.`;
+      sub = 'It\'s not a no. It\'s not a yes. It\'s a "let\'s see."';
+    } else {
+      icon = '💀';
+      title = `${userName}, come on.`;
+      sub = 'Negative score. I respect the honesty. I do not respect the outcome.';
+    }
+
+    document.getElementById('resultIcon').textContent = icon;
+    document.getElementById('resultTitle').innerHTML = title;
+    document.getElementById('resultSub').textContent = sub;
+    document.getElementById('finalScoreNum').textContent = (score >= 0 ? '+' : '') + score;
+    document.getElementById('finalScoreLabel').innerHTML = `out of a possible +${MAX_SCORE}<br><strong>${userName}'s final score</strong>`;
+
+    // Reset music bonus
+    document.getElementById('musicLink').value = '';
+    document.getElementById('musicLink').disabled = false;
+    document.getElementById('musicSubmitBtn').disabled = true;
+    document.getElementById('bonusMusicDone').classList.remove('show');
+
+    updateWaLink();
+    buildAnswerLog();
+    showScreen('screenResult');
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    document.getElementById('bookInput').addEventListener('input', function() {
+      document.getElementById('bookSubmitBtn').disabled = !this.value.trim();
+    });
+    document.getElementById('excuseInput').addEventListener('input', function() {
+      document.getElementById('excuseSubmit').disabled = !this.value.trim();
+    });
+    document.getElementById('musicLink').addEventListener('input', function() {
+      document.getElementById('musicSubmitBtn').disabled = !this.value.trim();
+    });
+    document.getElementById('nameInput').addEventListener('keydown', e => { if (e.key === 'Enter') document.getElementById('phoneInput').focus(); });
+    document.getElementById('phoneInput').addEventListener('keydown', e => { if (e.key === 'Enter') startQuiz(); });
+  });
+</script>
+
+</body>
+</html>
