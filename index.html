@@ -1059,6 +1059,19 @@
     .phew-word { font-size: 40px; }
   }
 
+  /* iPhone SE and narrow Android (~375px and below) */
+  @media (max-width: 390px) {
+    .card { padding: 28px 18px; border-radius: 20px; }
+    .intro-title { font-size: 26px; line-height: 1.15; }
+    .q-text { font-size: 20px; }
+    .result-title { font-size: 28px; }
+    .phew-word { font-size: 36px; }
+    .score-final-num { font-size: 38px; }
+    .btn-answer { padding: 13px 16px; font-size: 14px; }
+    .btn-multi { padding: 11px 14px; font-size: 13px; }
+    .intro-sub { font-size: 14px; }
+  }
+
   @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after { animation-duration: 0.01ms !important; transition-duration: 0.01ms !important; }
   }
@@ -1568,6 +1581,41 @@
         btn.style.setProperty('--rx', ((e.clientX - rect.left) / rect.width * 100) + '%');
         btn.style.setProperty('--ry', ((e.clientY - rect.top) / rect.height * 100) + '%');
       });
+    });
+
+    // Keyboard: Enter triggers focused answer button
+    document.addEventListener('keydown', function(e) {
+      if (e.key !== 'Enter') return;
+      const active = document.querySelector('.screen.active');
+      if (!active) return;
+
+      // If a btn-answer has focus, click it
+      const focused = document.activeElement;
+      if (focused && focused.classList.contains('btn-answer') && active.contains(focused)) {
+        focused.click();
+        return;
+      }
+
+      // Q3: Enter confirms multi-select if confirm button is enabled
+      const confirmBtn = active.querySelector('#multiConfirmBtn');
+      if (confirmBtn && !confirmBtn.disabled) {
+        confirmBtn.click();
+        return;
+      }
+
+      // Q5: Enter submits book if input has content
+      const bookBtn = active.querySelector('#bookSubmitBtn');
+      if (bookBtn && !bookBtn.disabled) {
+        bookBtn.click();
+        return;
+      }
+
+      // Phew screen: Enter continues
+      const phewBtn = active.querySelector('.phew-continue');
+      if (phewBtn) {
+        phewBtn.click();
+        return;
+      }
     });
   });
 </script>
