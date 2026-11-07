@@ -86,7 +86,7 @@
     font-weight: 600;
     text-transform: uppercase;
     letter-spacing: 0.12em;
-    color: #BBBBBB;
+    color: #999999;
   }
 
   .score-num {
@@ -108,15 +108,15 @@
   }
 
   .score-bar-track {
-    height: 3px;
-    background: #EEEEEE;
+    height: 4px;
+    background: #DDDDDD;
     border-radius: 99px;
     position: relative;
     overflow: visible;
   }
 
   .score-bar-fill {
-    height: 100%;
+    height: 4px;
     border-radius: 99px;
     background: linear-gradient(90deg, var(--pink-light), var(--pink));
     transition: width 0.6s cubic-bezier(.34,1.56,.64,1);
@@ -440,7 +440,7 @@
     font-weight: 700;
     color: var(--black);
     line-height: 1.25;
-    margin-bottom: 12px;
+    margin-bottom: 24px;
   }
 
   .q-sub {
@@ -499,13 +499,47 @@
   /* "Selected" state before navigation */
   .btn-answer.chosen {
     border-color: var(--pink);
+    border-width: 2px;
     background: var(--pink-pale);
     transform: translateX(5px);
-    box-shadow: 0 4px 16px rgba(240,30,90,0.12);
+    box-shadow: 0 4px 20px rgba(240,30,90,0.18);
+    font-weight: 600;
+    color: var(--pink);
+    pointer-events: none;
+  }
+  .btn-answer.chosen::after {
+    content: '✓';
+    position: absolute;
+    right: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--pink);
+    animation: checkPop 0.25s cubic-bezier(.34,1.56,.64,1) both;
+  }
+  @keyframes checkPop {
+    from { opacity: 0; transform: scale(0.4); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  /* Dim unchosen buttons while one is selected */
+  .btn-group.chosen-lock .btn-answer:not(.chosen) {
+    opacity: 0.35;
+    pointer-events: none;
   }
   .btn-answer.chosen-neg {
     border-color: var(--red);
+    border-width: 2px;
     background: #FFF5F5;
+    color: var(--red);
+    pointer-events: none;
+  }
+  .btn-answer.chosen-neg::after {
+    content: '✓';
+    position: absolute;
+    right: 16px;
+    font-size: 14px;
+    font-weight: 700;
+    color: var(--red);
+    animation: checkPop 0.25s cubic-bezier(.34,1.56,.64,1) both;
   }
 
   .btn-answer .pts {
@@ -1077,9 +1111,9 @@
     </div>
     <div class="q-text">Do you give good קיצי?<span class="tag-hint" id="kitzHint" style="font-size:9px; margin-left:6px;">?<div class="intro-tooltip" id="kitzTooltip" style="font-family:'Inter',sans-serif; font-size:12px; letter-spacing:0; text-transform:none;">קיצי (keetzi) — short messages. Concise, warm, to the point. The opposite of leaving someone on read or sending a voice note.</div></span></div>
     <div class="btn-group">
-      <button class="btn-answer excuse-btn" onclick="answer(1, 0.5, 'I pledge to improve')">I pledge to improve <span class="pts">+0.5</span></button>
-      <button class="btn-answer yes-btn" onclick="answer(1, 1)">Yes <span class="pts">+1</span></button>
-      <button class="btn-answer no-btn" onclick="answer(1, -1)">No <span class="pts">-1</span></button>
+      <button class="btn-answer excuse-btn" onclick="answer(1, 0.5, 'I pledge to improve', this)">I pledge to improve <span class="pts">+0.5</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(1, 1, null, this)">Yes <span class="pts">+1</span></button>
+      <button class="btn-answer no-btn" onclick="answer(1, -1, null, this)">No <span class="pts">-1</span></button>
     </div>
   </div>
 
@@ -1090,9 +1124,9 @@
     </div>
     <div class="q-text">Have you gone out to dance with friends in the last few months?</div>
     <div class="btn-group">
-      <button class="btn-answer yes-btn" onclick="answer(2, 1)">Yes <span class="pts">+1</span></button>
-      <button class="btn-answer no-btn" onclick="answer(2, -1)">No <span class="pts">-1</span></button>
-      <button class="btn-answer excuse-btn" onclick="answer(2, 0.5, 'I\'m the DJ')">I'm the DJ <span class="pts">+0.5</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(2, 1, null, this)">Yes <span class="pts">+1</span></button>
+      <button class="btn-answer no-btn" onclick="answer(2, -1, null, this)">No <span class="pts">-1</span></button>
+      <button class="btn-answer excuse-btn" onclick="answer(2, 0.5, 'I\'m the DJ', this)">I'm the DJ <span class="pts">+0.5</span></button>
     </div>
   </div>
 
@@ -1136,8 +1170,8 @@
     </div>
     <div class="q-text">Will you be voting for Bibi, Smotrich, Ben Gvir, Eliyahu, Deri, Maoz, Gafni, Goldknopf, or Feiglin?</div>
     <div class="btn-group">
-      <button class="btn-answer end-btn" onclick="disqualify()">Yes <span class="pts">💀</span></button>
-      <button class="btn-answer yes-btn" onclick="answer(4, 1, 'No')">No <span class="pts">+1</span></button>
+      <button class="btn-answer end-btn" onclick="disqualify(this)">Yes <span class="pts">💀</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(4, 1, 'No', this)">No <span class="pts">+1</span></button>
     </div>
   </div>
 
@@ -1159,7 +1193,7 @@
     <div class="btn-group" id="q5group">
       <textarea class="excuse-input" id="bookInput" rows="2" placeholder="Title and author..."></textarea>
       <button class="excuse-submit" id="bookSubmitBtn" onclick="submitBook()" disabled>Next →</button>
-      <button class="btn-answer no-btn" style="margin-top:4px;" onclick="answer(5, -1, 'I don\'t read')">I don't read <span class="pts">-1</span></button>
+      <button class="btn-answer no-btn" style="margin-top:4px;" onclick="answer(5, -1, 'I don\'t read', this)">I don't read <span class="pts">-1</span></button>
     </div>
   </div>
 
@@ -1170,8 +1204,8 @@
     </div>
     <div class="q-text">Will you play trivia with me?</div>
     <div class="btn-group">
-      <button class="btn-answer yes-btn" onclick="answer(6, 1)">Yes <span class="pts">+1</span></button>
-      <button class="btn-answer no-btn" onclick="answer(6, -1)">No <span class="pts">-1</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(6, 1, null, this)">Yes <span class="pts">+1</span></button>
+      <button class="btn-answer no-btn" onclick="answer(6, -1, null, this)">No <span class="pts">-1</span></button>
     </div>
   </div>
 
@@ -1308,16 +1342,12 @@
     }
   }
 
-  function answer(qNum, pts, customLabel) {
-    // Mark chosen button
-    const active = document.querySelector('.screen.active');
-    if (active) {
-      const btns = active.querySelectorAll('.btn-answer');
-      btns.forEach(b => {
-        if (b.onclick && b.onclick.toString().includes(`answer(${qNum}`)) {
-          // find which button was clicked by checking if it matches label
-        }
-      });
+  function answer(qNum, pts, customLabel, el) {
+    // Mark chosen button + lock siblings
+    if (el) {
+      const grp = el.closest('.btn-group');
+      if (grp) grp.classList.add('chosen-lock');
+      el.classList.add(pts < 0 ? 'chosen-neg' : 'chosen');
     }
     revealCurrentPts();
     score += pts;
@@ -1407,10 +1437,17 @@
   }
 
   /* ── DISQUALIFY ── */
-  function disqualify() {
-    document.getElementById('scoreBarWrap').style.display = 'none';
-    document.getElementById('dqText').textContent = `Thanks for your time, ${userName}. Wishing you all the best!`;
-    showScreen('screenDQ');
+  function disqualify(el) {
+    if (el) {
+      const grp = el.closest('.btn-group');
+      if (grp) grp.classList.add('chosen-lock');
+      el.classList.add('chosen-neg');
+    }
+    setTimeout(() => {
+      document.getElementById('scoreBarWrap').style.display = 'none';
+      document.getElementById('dqText').textContent = `Thanks for your time, ${userName}. Wishing you all the best!`;
+      showScreen('screenDQ');
+    }, 480);
   }
 
   /* ── BUILD WA MESSAGE ── */
