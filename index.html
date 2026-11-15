@@ -1097,9 +1097,9 @@
     </div>
     <div class="q-text">It's raining on the night of our first date! What do you do?</div>
     <div class="btn-group">
-      <button class="btn-answer excuse-btn" onclick="answer(6, 0, 'Raincheck', this)">Raincheck <span class="hand-note">it's water.</span> <span class="pts">0</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(6, 1, 'Raincheck', this)">Raincheck <span class="hand-note">it's ok I get it.</span> <span class="pts">+1</span></button>
       <button class="btn-answer no-btn has-long-note" onclick="answer(6, -1, 'Ask me to come over', this)">Ask me to come over instead <span class="hand-note long">lol you want just me to go out into the rain instead?</span> <span class="pts">-1</span></button>
-      <button class="btn-answer yes-btn" onclick="answer(6, 1, 'Pick me up with an umbrella', this)">Pick me up with an umbrella <span class="hand-note">correct.</span> <span class="pts">+1</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(6, 2, 'Show up anyway with an umbrella', this)">Show up anyway with an umbrella <span class="hand-note">chivalry noted.</span> <span class="pts">+2</span></button>
     </div>
   </div>
 
@@ -1202,7 +1202,7 @@
   /* ── VERDICT FLASH ── */
   function flashVerdict(pts) {
     const badge = document.getElementById('verdictBadge');
-    badge.textContent = pts === 0.5 ? '+½' : pts > 0 ? '+1' : '-1';
+    badge.textContent = pts === 0.5 ? '+½' : formatScore(pts);
     badge.className = 'verdict-badge ' + (pts > 0 ? 'plus' : 'minus');
     badge.classList.add('pop');
     badge.addEventListener('animationend', () => {
@@ -1211,9 +1211,9 @@
     }, { once: true });
   }
 
-  /* Hearts — only for a full point */
+  /* Hearts — for a full point or more */
   function launchConfetti(pts) {
-    if (pts !== 1) return;
+    if (pts < 1) return;
     if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
     const NS = 'http://www.w3.org/2000/svg';
     for (let i = 0; i < 10; i++) {
@@ -1395,7 +1395,7 @@
   function buildWaMessage() {
     const qLabels = { 1: 'קיצי', 2: 'Dancing', 3: 'Friend group', 4: 'Voting', 5: 'Reading', 6: 'Rain' };
     let msg = `*Should We Meet? — ${userName}'s results*\n`;
-    msg += `Score: ${formatScore(totalScore())} / +${MAX_SCORE}\n\n`;
+    msg += `Score: ${formatScore(totalScore())}\n\n`;
     answerLog.forEach(a => {
       const pts = a.pts === null ? '' : a.pts > 0 ? ` (+${a.pts})` : a.pts === 0 ? ' (0)' : ` (${a.pts})`;
       msg += `Q${a.q} ${qLabels[a.q]}: ${a.label}${pts}\n`;
