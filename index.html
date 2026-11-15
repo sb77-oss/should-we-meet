@@ -757,6 +757,18 @@
     from { opacity: 1; clip-path: inset(-20% 100% -20% 0); }
     to   { opacity: 1; clip-path: inset(-20% -5% -20% 0); }
   }
+  /* a longer note gets its own two lines inside the option, which grows to fit */
+  .btn-answer.has-long-note { transition: border-color 0.15s, background 0.15s, opacity 0.2s, padding-bottom 0.2s ease-out; }
+  .btn-answer.has-long-note.chosen,
+  .btn-answer.has-long-note.chosen-neg { padding-bottom: 62px; }
+  .btn-answer .hand-note.long {
+    left: 56px;
+    bottom: 8px;
+    white-space: normal;
+    text-align: right;
+    line-height: 0.95;
+    transform: rotate(-2deg);
+  }
   .intro-note {
     display: inline-block;
     margin-left: 8px;
@@ -990,7 +1002,7 @@
       <span class="dot active"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span><span class="dot"></span>
     </div>
     <div class="q-text">Do you give good קיצי?</div>
-    <p class="q-def"><strong>קיצי</strong> (keetzi) — short messages. Concise, warm, to the point. The opposite of leaving someone on read or sending a voice note.</p>
+    <p class="q-def"><strong>קיצי</strong> (kitsi) — tickles, or scratchies. The gentle kind: back, arm, head.</p>
     <div class="btn-group">
       <button class="btn-answer excuse-btn" onclick="answer(1, 0.5, 'I pledge to improve', this)">I pledge to improve <span class="hand-note">we'll see.</span> <span class="pts">+0.5</span></button>
       <button class="btn-answer yes-btn" onclick="answer(1, 1, null, this)">Yes <span class="pts">+1</span></button>
@@ -1083,10 +1095,11 @@
     <div class="q-dots">
       <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot active"></span>
     </div>
-    <div class="q-text">Will you play trivia with me?</div>
+    <div class="q-text">It's raining on the night of our first date! What do you do?</div>
     <div class="btn-group">
-      <button class="btn-answer yes-btn" onclick="answer(6, 1, null, this)">Yes <span class="hand-note">obviously.</span> <span class="pts">+1</span></button>
-      <button class="btn-answer no-btn" onclick="answer(6, -1, null, this)">No <span class="pts">-1</span></button>
+      <button class="btn-answer excuse-btn" onclick="answer(6, 0, 'Raincheck', this)">Raincheck <span class="hand-note">it's water.</span> <span class="pts">0</span></button>
+      <button class="btn-answer no-btn has-long-note" onclick="answer(6, -1, 'Ask me to come over', this)">Ask me to come over instead <span class="hand-note long">lol you want just me to go out into the rain instead?</span> <span class="pts">-1</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(6, 1, 'Pick me up with an umbrella', this)">Pick me up with an umbrella <span class="hand-note">correct.</span> <span class="pts">+1</span></button>
     </div>
   </div>
 
@@ -1286,7 +1299,8 @@
     answerLog.push({ q: qNum, label, pts });
 
     // Hold a beat longer when the chosen option has a margin note, so it can be read
-    const hold = el && el.querySelector('.hand-note') ? 1400 : 480;
+    const note = el && el.querySelector('.hand-note');
+    const hold = !note ? 480 : note.classList.contains('long') ? 3000 : 1400;
 
     setTimeout(() => {
       if (qNum === 1) showScreen('screenQ2');
@@ -1379,7 +1393,7 @@
 
   /* ── BUILD WA MESSAGE ── */
   function buildWaMessage() {
-    const qLabels = { 1: 'קיצי', 2: 'Dancing', 3: 'Friend group', 4: 'Voting', 5: 'Reading', 6: 'Trivia' };
+    const qLabels = { 1: 'קיצי', 2: 'Dancing', 3: 'Friend group', 4: 'Voting', 5: 'Reading', 6: 'Rain' };
     let msg = `*Should We Meet? — ${userName}'s results*\n`;
     msg += `Score: ${formatScore(totalScore())} / +${MAX_SCORE}\n\n`;
     answerLog.forEach(a => {
@@ -1396,7 +1410,7 @@
 
   /* ── ANSWERS LOG ── */
   function buildAnswerLog() {
-    const qLabels = ['', 'קיצי', 'Gone out to dance?', 'Friend group roles', 'Voting for Bibi et al?', 'Currently reading', 'Will play trivia?'];
+    const qLabels = ['', 'קיצי', 'Gone out to dance?', 'Friend group roles', 'Voting for Bibi et al?', 'Currently reading', 'Rain on first date'];
     let html = `<div class="log-name">${userName}'s answers</div>`;
     answerLog.forEach((a, i) => {
       const cls = a.pts > 0 ? 'pos' : a.pts < 0 ? 'neg' : 'na';
