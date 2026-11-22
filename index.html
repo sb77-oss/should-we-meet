@@ -1095,11 +1095,10 @@
     <div class="q-dots">
       <span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot done"></span><span class="dot active"></span>
     </div>
-    <div class="q-text">It's raining on the night of our first date! What do you do?</div>
+    <div class="q-text">Have you ever lived abroad?</div>
     <div class="btn-group">
-      <button class="btn-answer yes-btn" onclick="answer(6, 1, 'Raincheck', this)">Raincheck <span class="hand-note">somewhat valid.</span> <span class="pts">+1</span></button>
-      <button class="btn-answer no-btn" onclick="answer(6, -1, 'Ask me to come over', this)">Ask me to come over instead <span class="hand-note">uh oh.</span> <span class="pts">-1</span></button>
-      <button class="btn-answer yes-btn" onclick="answer(6, 2, 'Share my umbrella with you', this)">Share my umbrella with you <span class="hand-note">very Rihanna of you.</span> <span class="pts">+2</span></button>
+      <button class="btn-answer yes-btn" onclick="answer(6, 1, 'Yes', this)">Yes <span class="pts">+1</span></button>
+      <button class="btn-answer excuse-btn" onclick="answer(6, 0, 'No', this)">No <span class="pts">0</span></button>
     </div>
   </div>
 
@@ -1393,7 +1392,7 @@
 
   /* ── BUILD WA MESSAGE ── */
   function buildWaMessage() {
-    const qLabels = { 1: 'קיצי', 2: 'Dancing', 3: 'Friend group', 4: 'Voting', 5: 'Reading', 6: 'Rain' };
+    const qLabels = { 1: 'קיצי', 2: 'Dancing', 3: 'Friend group', 4: 'Voting', 5: 'Reading', 6: 'Lived abroad' };
     let msg = `*Should We Meet? — ${userName}'s results*\n`;
     msg += `Score: ${formatScore(totalScore())}\n\n`;
     answerLog.forEach(a => {
@@ -1410,7 +1409,7 @@
 
   /* ── ANSWERS LOG ── */
   function buildAnswerLog() {
-    const qLabels = ['', 'קיצי', 'Gone out to dance?', 'Friend group roles', 'Voting for Bibi et al?', 'Currently reading', 'Rain on first date'];
+    const qLabels = ['', 'קיצי', 'Gone out to dance?', 'Friend group roles', 'Voting for Bibi et al?', 'Currently reading', 'Lived abroad?'];
     let html = `<div class="log-name">${userName}'s answers</div>`;
     answerLog.forEach((a, i) => {
       const cls = a.pts > 0 ? 'pos' : a.pts < 0 ? 'neg' : 'na';
